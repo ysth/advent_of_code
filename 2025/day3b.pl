@@ -1,26 +1,24 @@
 use 5.036;
+use List::Util 'min', 'max';
 # day 3 https://adventofcode.com/2025/day/3
 @ARGV = 'day3.txt' unless @ARGV;
 
+my $batteries = 12;
 my $joltage = 0;
+
 while (my $bank = <>) {
     chomp $bank;
-    my $best_batteries = top_n_batteries(12, $bank);
+    my $best_batteries =  '';
+    while ($bank =~ /./g) {
+        # can we replace some battery with this or add it?
+        # toward the end of the string, we can only make changes for later batteries
+        for my $position (max(0,$batteries+pos($bank)-length($bank)-1)..min($batteries-1,length $best_batteries)) {
+            if ($& gt substr $best_batteries, $position, 1) {
+                substr $best_batteries, $position, length($best_batteries) - $position, $&;
+                last;
+            }
+        }
+    }
     $joltage += $best_batteries;
 }
 say $joltage;
-
-sub top_n_batteries($n, $bank) {
-    return '' unless $n;
-
-    my $best = substr $bank, 0, 1;
-    my $best_location = 0;
-    for my $i (1..(length($bank) - $n)) {
-        if ($best lt substr $bank, $i, 1) {
-            $best = substr $bank, $i, 1;
-            $best_location = $i;
-        }
-    }
-    my $best_batteries = $best . top_n_batteries($n - 1, substr $bank, $best_location+1);
-    return $best_batteries;
-}
