@@ -8,14 +8,9 @@ my $dial = 50;
 my $times_zeroed = 0;
 while (<>) {
     /^([LR])(\d+)$/ or die "bad: $_";
-    if ($1 eq 'L') {
-        $dial -= $2;
-        $times_zeroed += int((100-$dial)/100) - ($dial == -$2);
-    }
-    else {
-        $dial += $2;
-        $times_zeroed += int($dial/100);
-    }
+    $dial &&= 100 - $dial if $1 eq 'L';
+    $times_zeroed += int(($dial += $2)/100);
     $dial %= 100;
+    $dial &&= 100 - $dial if $1 eq 'L';
 }
 say $times_zeroed;
